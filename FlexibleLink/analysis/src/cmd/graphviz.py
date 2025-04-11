@@ -70,7 +70,7 @@ def main():
 
     print(data)
 
-    graph_viz = GraphViz(data)
+    gv = GraphViz(data)
 
     save_dir = path.join(
         path.dirname(__file__),
@@ -83,11 +83,11 @@ def main():
         makedirs(save_dir)
     
     with open(path.join(save_dir, 'SimplePlot.svg'), mode='w') as f:
-        graph_viz.SimplePlot().savefig(f, format='svg')
+        gv.SimplePlot().savefig(f, format='svg')
     with open(path.join(save_dir, 'BodeGainPlot.svg'), mode='w') as f:
-        graph_viz.BodeGainPlot().savefig(f, format='svg')
+        gv.BodeGainPlot().savefig(f, format='svg')
     with open(path.join(save_dir, 'NyquistPlot.svg'), mode='w') as f:
-        graph_viz.NyquistPlot().savefig(f, format='svg')
+        gv.NyquistPlot().savefig(f, format='svg')
 
     print('saved plots')
 
