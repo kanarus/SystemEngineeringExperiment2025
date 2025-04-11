@@ -18,10 +18,10 @@ class Args:
 
 
 class GraphViz:
-    __sample_data: SampleData
+    __data: SampleData
 
     def __init__(self, sample_data: SampleData):
-        self.__sample_data = sample_data
+        self.__data = sample_data
 
     def SimplePlot(self) -> pyplot.Figure:
         figure = pyplot.figure()
@@ -30,37 +30,31 @@ class GraphViz:
         pyplot.ylabel('G(jω)')
         pyplot.grid()
         pyplot.scatter(
-            x=self.__sample_data.ω(),
-            y=self.__sample_data.SysGain(),
+            x=self.__data.ω,
+            y=self.__data.SysGain,
             s=8,
         )
         return figure
     
     def BodeGainPlot(self) -> pyplot.Figure:
+        plot = self.__data.BodeGainPlot()
         figure = pyplot.figure()
         pyplot.title('Bode Gain Plot')
         pyplot.xscale('log')
         pyplot.xlabel('ω [rad/sec]')
         pyplot.ylabel('20log|G(jω)|')
         pyplot.grid()
-        pyplot.scatter(
-            x=self.__sample_data.ω(),
-            y=list(map(lambda x: 20 * math.log10(x), self.__sample_data.SysGain())),
-            s=8,
-        )
+        pyplot.scatter(plot.x, plot.y, s=8)
         return figure
 
     def NyquistPlot(self) -> pyplot.Figure:
+        plot = self.__data.NyquistPlot()
         figure = pyplot.figure()
         pyplot.title('Nyquist Plot')
         pyplot.xlabel('Re(G(jω))')
         pyplot.ylabel('Im(G(jω))')
         pyplot.grid()
-        pyplot.scatter(
-            x=list(map(lambda x, y: x * math.cos(y), self.__sample_data.SysGain(), self.__sample_data.SysPhase())),
-            y=list(map(lambda x, y: x * math.sin(y), self.__sample_data.SysGain(), self.__sample_data.SysPhase())),
-            s=8,
-        )
+        pyplot.scatter(plot.x, plot.y, s=8)
         return figure
 
 
