@@ -1,13 +1,13 @@
 import csv
-from pandas import DataFrame
+import pandas
 
 
 class SampleData:
-    __dataframe: DataFrame
+    __dataframe: pandas.DataFrame
 
     def __init__(self, filename: str):
         with open(filename, mode='r') as f:
-            self.__dataframe = DataFrame(
+            self.__dataframe = pandas.DataFrame(
                 list(csv.reader(f)),
                 index=['ω', 'SysGain', 'SysPhase']
             )
