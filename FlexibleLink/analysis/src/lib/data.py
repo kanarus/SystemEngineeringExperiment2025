@@ -11,31 +11,34 @@ class Plot:
 
 class SampleData:
     __dataframe: pandas.DataFrame
-    ω: list[float]
-    SysGain: list[float]
-    SysPhase: list[float]
 
     def __init__(self, filename: str):
         with open(filename, mode='r') as f:
             self.__dataframe = pandas.DataFrame(
-                list(csv.reader(f)),
+                map(lambda str_list: map(float, str_list), csv.reader(f)),
                 index=['ω', 'SysGain', 'SysPhase']
             )
-        self.ω = list(map(float, self.__dataframe.loc['ω'].to_list()))
-        self.SysGain = list(map(float, self.__dataframe.loc['SysGain'].to_list()))
-        self.SysPhase = list(map(float, self.__dataframe.loc['SysPhase'].to_list()))
 
     def __str__(self):
         return str(self.__dataframe)
     
+    def ω(self) -> list[float]:
+        return self.__dataframe.loc['ω'].to_list()
+    
+    def SysGain(self) -> list[float]:
+        return self.__dataframe.loc['SysGain'].to_list()
+    
+    def SysPhase(self) -> list[float]:
+        return self.__dataframe.loc['SysPhase'].to_list()
+    
     def BodeGainPlot(self) -> Plot:
         return Plot(
-            x=self.ω,
-            y=list(map(lambda x: 20 * math.log10(x), self.SysGain)),
+            x=self.ω(),
+            y=list(map(lambda x: 20 * math.log10(x), self.SysGain())),
         )
     
     def NyquistPlot(self) -> Plot:
         return Plot(
-            x=list(map(lambda x, y: x * math.cos(y), self.SysGain, self.SysPhase)),
-            y=list(map(lambda x, y: x * math.sin(y), self.SysGain, self.SysPhase)),
+            x=list(map(lambda x, y: x * math.cos(y), self.SysGain(), self.SysPhase())),
+            y=list(map(lambda x, y: x * math.sin(y), self.SysGain(), self.SysPhase())),
         )

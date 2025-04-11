@@ -30,8 +30,8 @@ class GraphViz:
         pyplot.ylabel('G(jω)')
         pyplot.grid()
         pyplot.scatter(
-            x=self.__data.ω,
-            y=self.__data.SysGain,
+            x=self.__data.ω(),
+            y=self.__data.SysGain(),
             s=8,
         )
         return figure
