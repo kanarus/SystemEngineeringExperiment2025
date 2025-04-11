@@ -1,9 +1,9 @@
 import csv
-import argparse
 import math
+import argparse
 from os import path
-from matplotlib import pyplot
 from pandas import DataFrame
+from matplotlib import pyplot
 
 
 class Args:
@@ -74,20 +74,18 @@ def main():
     data = AnalysisTarget(a.filename)
 
     print(data)
-    print('ω =', data.ω(), type(data.ω()))
 
-    data.saveBodeGainPlot(path.join(
+    save_dir = path.join(
         path.dirname(__file__),
         '..',
         'graph',
-        f'{path.splitext(path.basename(a.filename))[0]}.BodeGainPlot.svg'
-    ))
-    data.saveNyquistPlot(path.join(
-        path.dirname(__file__),
-        '..',
-        'graph',
-        f'{path.splitext(path.basename(a.filename))[0]}.NyquistPlot.svg'
-    ))
+    )
+    data_file_stem = path.splitext(
+        path.basename(a.filename)
+    )[0]
+    data.saveBodeGainPlot(path.join(save_dir, f'{data_file_stem}.BodeGainPlot.svg'))
+    data.saveNyquistPlot(path.join(save_dir, f'{data_file_stem}.NyquistPlot.svg'))
+
 
 if __name__ == "__main__":
     main()
