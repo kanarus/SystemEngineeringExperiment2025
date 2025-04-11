@@ -2,7 +2,7 @@ from lib.data import SampleData
 
 import math
 import argparse
-from os import path
+from os import path, makedirs
 from matplotlib import pyplot
 
 
@@ -22,6 +22,19 @@ class GraphViz:
 
     def __init__(self, sample_data: SampleData):
         self.__sample_data = sample_data
+
+    def SimplePlot(self) -> pyplot.Figure:
+        figure = pyplot.figure()
+        pyplot.title('Simple Plot')
+        pyplot.xlabel('ω [rad/sec]')
+        pyplot.ylabel('G(jω)')
+        pyplot.grid()
+        pyplot.scatter(
+            x=self.__sample_data.ω(),
+            y=self.__sample_data.SysGain(),
+            s=8,
+        )
+        return figure
     
     def BodeGainPlot(self) -> pyplot.Figure:
         figure = pyplot.figure()
@@ -59,15 +72,21 @@ def main():
 
     graph_viz = GraphViz(data)
 
-    save_dir = path.join(path.dirname(__file__), '..', '..', 'graph')
+    save_dir = path.join(
+        path.dirname(__file__),
+        '..',
+        '..',
+        'graph',
+        path.splitext(path.basename(a.filename))[0],
+    )
     if not path.exists(save_dir):
-        raise FileNotFoundError(f'`save_dir` does not exist: `{save_dir}`')
+        makedirs(save_dir)
     
-    data_file_stem = path.splitext(path.basename(a.filename))[0]
-    
-    with open(path.join(save_dir, f'{data_file_stem}.BodeGainPlot.svg'), mode='w') as f:
+    with open(path.join(save_dir, 'SimplePlot.svg'), mode='w') as f:
+        graph_viz.SimplePlot().savefig(f, format='svg')
+    with open(path.join(save_dir, 'BodeGainPlot.svg'), mode='w') as f:
         graph_viz.BodeGainPlot().savefig(f, format='svg')
-    with open(path.join(save_dir, f'{data_file_stem}.NyquistPlot.svg'), mode='w') as f:
+    with open(path.join(save_dir, 'NyquistPlot.svg'), mode='w') as f:
         graph_viz.NyquistPlot().savefig(f, format='svg')
 
     print('saved plots')
