@@ -15,8 +15,9 @@ class SampleData:
     def __init__(self, filename: str):
         with open(filename, mode='r') as f:
             self.__dataframe = pandas.DataFrame(
-                map(lambda str_list: map(float, str_list), csv.reader(f)),
-                index=['ω', 'SysGain', 'SysPhase']
+                csv.reader(f),
+                dtype=float,
+                index=['ω', 'SysGain', 'SysPhase'],
             )
 
     def __str__(self):
@@ -42,3 +43,7 @@ class SampleData:
             x=list(map(lambda x, y: x * math.cos(y), self.SysGain(), self.SysPhase())),
             y=list(map(lambda x, y: x * math.sin(y), self.SysGain(), self.SysPhase())),
         )
+    
+    # def eliminate(self, )
+    
+

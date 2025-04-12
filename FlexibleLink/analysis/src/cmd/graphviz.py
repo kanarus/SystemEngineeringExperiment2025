@@ -1,6 +1,5 @@
 from lib.data import SampleData
 
-import math
 import argparse
 from os import path, makedirs
 from matplotlib import pyplot
@@ -86,5 +85,5 @@ def main():
     print('saved plots')
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
