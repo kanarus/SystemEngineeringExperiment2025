@@ -14,7 +14,7 @@ class SampleData:
     2. System Gain (SysGain)
     3. System Phase (SysPhase)
 
-    sorted by columns in ascending order of ω.
+    The data is automatically sorted by ω in ascending order when loaded.
 
     Methods:
 
