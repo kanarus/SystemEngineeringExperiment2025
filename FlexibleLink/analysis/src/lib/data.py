@@ -1,13 +1,9 @@
+from lib import plot
+
 import csv
 import math
 import pandas
-import dataclasses
 
-
-@dataclasses.dataclass
-class Plot:
-    x: list[float]
-    y: list[float]
 
 class SampleData:
     """
@@ -51,18 +47,14 @@ class SampleData:
     def SysPhase(self) -> list[float]:
         return self.__dataframe['SysPhase'].to_list()
     
-    def BodeGainPlot(self) -> Plot:
-        return Plot(
+    def BodeGainPlot(self) -> plot.Plot:
+        return plot.Plot(
             x=self.ω(),
             y=list(map(lambda x: 20 * math.log10(x), self.SysGain())),
         )
     
-    def NyquistPlot(self) -> Plot:
-        return Plot(
+    def NyquistPlot(self) -> plot.Plot:
+        return plot.Plot(
             x=list(map(lambda x, y: x * math.cos(y), self.SysGain(), self.SysPhase())),
             y=list(map(lambda x, y: x * math.sin(y), self.SysGain(), self.SysPhase())),
         )
-    
-    # def remove_columns(self
-    
-
