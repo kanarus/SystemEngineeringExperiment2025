@@ -47,14 +47,75 @@ class SampleData:
     def SysPhase(self) -> list[float]:
         return self.__dataframe['SysPhase'].to_list()
     
+    def SimplePlot(self) -> plot.Plot:
+        return plot.Plot(
+            x=self.ω(),
+            y=self.SysGain(),
+            title='Simple Plot',
+            xlabel='ω [rad/sec]',
+            ylabel='G(jω)',
+        )
+
     def BodeGainPlot(self) -> plot.Plot:
         return plot.Plot(
             x=self.ω(),
             y=list(map(lambda x: 20 * math.log10(x), self.SysGain())),
+            title='Bode Gain Plot',
+            xlabel='ω [rad/sec]',
+            ylabel='20log|G(jω)|',
+            xlogscale=True,
         )
     
     def NyquistPlot(self) -> plot.Plot:
         return plot.Plot(
             x=list(map(lambda x, y: x * math.cos(y), self.SysGain(), self.SysPhase())),
             y=list(map(lambda x, y: x * math.sin(y), self.SysGain(), self.SysPhase())),
+            title='Nyquist Plot',
+            xlabel='Re(G(jω))',
+            ylabel='Im(G(jω))',
         )
+    
+
+"""
+
+class GraphViz:
+    __data: SampleData
+
+    def __init__(self, sample_data: SampleData):
+        self.__data = sample_data
+
+    def SimplePlot(self) -> pyplot.Figure:
+        figure = pyplot.figure()
+        pyplot.title('Simple Plot')
+        pyplot.xlabel('ω [rad/sec]')
+        pyplot.ylabel('G(jω)')
+        pyplot.grid()
+        pyplot.scatter(
+            x=self.__data.ω(),
+            y=self.__data.SysGain(),
+            s=8,
+        )
+        return figure
+    
+    def BodeGainPlot(self) -> pyplot.Figure:
+        plot = self.__data.BodeGainPlot()
+        figure = pyplot.figure()
+        pyplot.title('Bode Gain Plot')
+        pyplot.xscale('log')
+        pyplot.xlabel('ω [rad/sec]')
+        pyplot.ylabel('20log|G(jω)|')
+        pyplot.grid()
+        pyplot.scatter(plot.x, plot.y, s=8)
+        return figure
+
+    def NyquistPlot(self) -> pyplot.Figure:
+        plot = self.__data.NyquistPlot()
+        figure = pyplot.figure()
+        pyplot.title('Nyquist Plot')
+        pyplot.xlabel('Re(G(jω))')
+        pyplot.ylabel('Im(G(jω))')
+        pyplot.grid()
+        pyplot.scatter(plot.x, plot.y, s=8)
+        return figure
+
+"""
