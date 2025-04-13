@@ -120,7 +120,7 @@ def by_vec_angle_continuity(
 
 def by_vec_continuous_connectivity_score(
     p: Plot,
-    THRESHOLD_RADIANS: float = math.pi / 12, # [rad], 15 degrees
+    THRESHOLD_RADIANS: float = math.pi / 15 # [rad], 12 degrees
 ) -> None:
     ##########################################################################
     # Convert scaled coordinates to linear for the outlier detection
@@ -133,15 +133,15 @@ def by_vec_continuous_connectivity_score(
     def next_continuously_connectable(
         starting_index: int,
         successor_index: int,
-        direction: str, # 'right' or 'left'
+        direction: str, # 'left' or 'right'
     ) -> int | None:
         match direction:
-            case 'right':
-                candidates = range(successor_index + 1, p.size())
             case 'left':
                 candidates = reversed(range(0, successor_index))
+            case 'right':
+                candidates = range(successor_index + 1, p.size())
             case _:
-                raise ValueError("direction must be 'right' or 'left'")
+                raise ValueError("direction must be 'left' or 'right''")
         start, succ = p.get(starting_index), p.get(successor_index)
         angle = math.atan2(succ.y - start.y, succ.x - start.x)
         for i in candidates:
@@ -176,27 +176,24 @@ def by_vec_continuous_connectivity_score(
         for initial_succ in reversed(range(0, i)):
             score_for_this_initial_succ = 0
             start, succ = i, initial_succ
-            while succ >= 0:
-                if (next := next_continuously_connectable(start, succ, 'left')) is not None:
-                    score_for_this_initial_succ += 1
-                    start, succ = succ, next
-                else:
-                    break
+            while succ is not None:
+                score_for_this_initial_succ += 1
+                next = next_continuously_connectable(start, succ, 'left')
+                start, succ = succ, next
             left_score = max(left_score, score_for_this_initial_succ)
 
         right_score = 0
         for initial_succ in range(i + 1, p.size()):
             score_for_this_initial_succ = 0
             start, succ = i, initial_succ
-            while succ < p.size():
-                if (next := next_continuously_connectable(start, succ, 'right')) is not None:
-                    score_for_this_initial_succ += 1
-                    start, succ = succ, next
-                else:
-                    break
+            while succ is not None:
+                score_for_this_initial_succ += 1
+                next = next_continuously_connectable(start, succ, 'right')
+                start, succ = succ, next
             right_score = max(right_score, score_for_this_initial_succ)
         
         scores[i] = left_score + right_score
+
         print(f"{left_score} + {right_score} = {scores[i]}")
 
     # Remove the outliers from the plot based on the scores.
@@ -205,6 +202,9 @@ def by_vec_continuous_connectivity_score(
     dropshift = 0
     for i in range(p.size()):
         if scores[i] < threshold:
+
+            print(f"dropping {i} ({scores[i]})")
+
             p.drop(i - dropshift)
             drop_shift += 1
         else:

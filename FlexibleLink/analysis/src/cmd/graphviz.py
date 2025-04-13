@@ -44,12 +44,12 @@ def main():
     with open(path.join(save_dir, 'BodeGainPlot.processed1.svg'), mode='w') as f:
         p = d.BodeGainPlot()
         preprocess.by_vec_angle_continuity(p)
-        p.title = 'Bode Gain Plot (by_vec_angle_continuity)'
+        p.title = 'Bode Gain Plot (processed by vec angle continuity)'
         p.figure().savefig(f, format='svg')
     with open(path.join(save_dir, 'BodeGainPlot.processed2.svg'), mode='w') as f:
         p = d.BodeGainPlot()
         preprocess.by_vec_continuous_connectivity_score(p)
-        p.title = 'Bode Gain Plot (by_vec_continuous_connectivity_score)'
+        p.title = 'Bode Gain Plot (processed by vec continuous connectivity score)'
         p.figure().savefig(f, format='svg')
     
     print('saved processed plots')
