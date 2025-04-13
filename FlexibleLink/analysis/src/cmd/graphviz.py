@@ -26,7 +26,7 @@ def main():
         path.dirname(__file__),
         '..',
         '..',
-        'graph',
+        'plots',
         path.splitext(path.basename(a.filename))[0],
     )
     if not path.exists(save_dir):
