@@ -50,6 +50,12 @@ class Plot:
         self.xlogscale = xlogscale
         self.ylogscale = ylogscale
 
+    def __str__(self) -> str:
+        """
+        Return a string representation of the plot.
+        """
+        return f"Plot({self.points} | title={self.title}, xlabel={self.xlabel}, ylabel={self.ylabel}, xlogscale={self.xlogscale}, ylogscale={self.ylogscale})"
+
     def x(self) -> list[float]:
         """
         Return the x coordinates of the points in the plot.

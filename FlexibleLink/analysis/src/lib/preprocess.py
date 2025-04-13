@@ -1,7 +1,6 @@
 from lib.plot import Plot, Point
 
 import math
-from typing import Callable
 
 
 def by_vec_angle_continuity(
@@ -120,8 +119,39 @@ def by_vec_angle_continuity(
 
 def by_vec_continuous_connectivity_score(
     p: Plot,
-    THRESHOLD_RADIANS: float = math.pi / 15 # [rad], 12 degrees
+    THRESHOLD_RADIANS: float = math.pi / 8 # [rad], 22.5 degrees
 ) -> None:
+    CONTINUE_OFFSET_LIMIT = 4
+
+    def next_continuously_connectable(
+        starting_index: int,
+        successor_index: int,
+        direction: str, # 'left' or 'right'
+    ) -> int | None:
+        candidates: range = None
+        match direction:
+            case 'left':
+                candidates = reversed(range(
+                    max(0, successor_index - CONTINUE_OFFSET_LIMIT),
+                    successor_index,
+                ))
+            case 'right':
+                candidates = range(
+                    successor_index + 1,
+                    min(p.size(), successor_index + 1 + CONTINUE_OFFSET_LIMIT),
+                )
+            case _:
+                raise ValueError("direction must be 'left' or 'right''")
+        starting_point, successer_point = p.get(starting_index), p.get(successor_index)
+        angle = math.atan2(successer_point.y - starting_point.y, successer_point.x - starting_point.x)
+        for i in candidates:
+            c = p.get(i)
+            c_angle = math.atan2(c.y - successer_point.y, c.x - successer_point.x)
+            if abs(c_angle - angle) < THRESHOLD_RADIANS:
+                return i
+        else:
+            return None
+
     ##########################################################################
     # Convert scaled coordinates to linear for the outlier detection
     if p.xlogscale:
@@ -129,28 +159,6 @@ def by_vec_continuous_connectivity_score(
     if p.ylogscale:
         p.points = [Point(point.x, math.log10(point.y)) for point in p.points]
     ##########################################################################
-
-    def next_continuously_connectable(
-        starting_index: int,
-        successor_index: int,
-        direction: str, # 'left' or 'right'
-    ) -> int | None:
-        match direction:
-            case 'left':
-                candidates = reversed(range(0, successor_index))
-            case 'right':
-                candidates = range(successor_index + 1, p.size())
-            case _:
-                raise ValueError("direction must be 'left' or 'right''")
-        start, succ = p.get(starting_index), p.get(successor_index)
-        angle = math.atan2(succ.y - start.y, succ.x - start.x)
-        for i in candidates:
-            c = p.get(i)
-            c_angle = math.atan2(c.y - succ.y, c.x - succ.x)
-            if abs(c_angle - angle) < THRESHOLD_RADIANS:
-                return i
-        else:
-            return None
 
     scores = [0] * p.size()
 
@@ -173,7 +181,10 @@ def by_vec_continuous_connectivity_score(
         # Let's define this as the (final) *score of the initial starting point*.
 
         left_score = 0
-        for initial_succ in reversed(range(0, i)):
+        for initial_succ in reversed(range(
+            max(0, i - CONTINUE_OFFSET_LIMIT),
+            i
+        )):
             score_for_this_initial_succ = 0
             start, succ = i, initial_succ
             while succ is not None:
@@ -183,10 +194,15 @@ def by_vec_continuous_connectivity_score(
             left_score = max(left_score, score_for_this_initial_succ)
 
         right_score = 0
-        for initial_succ in range(i + 1, p.size()):
+        for initial_succ in range(
+            i + 1,
+            min(p.size(), i + 1 + CONTINUE_OFFSET_LIMIT)
+        ):
             score_for_this_initial_succ = 0
             start, succ = i, initial_succ
             while succ is not None:
+                if i == 0:
+                    print(f"start: {start}({p.get(start)}), succ: {succ}({p.get(succ)})")
                 score_for_this_initial_succ += 1
                 next = next_continuously_connectable(start, succ, 'right')
                 start, succ = succ, next
@@ -198,17 +214,20 @@ def by_vec_continuous_connectivity_score(
 
     # Remove the outliers from the plot based on the scores.
     # The points with 0 or very small scores are considered outliers and removed.
-    threshold = max(scores) / 2
+    threshold = max(scores) / 4
+    print(f"threshold: {threshold}")
+    print(f"scores: {scores}")
     dropshift = 0
-    for i in range(p.size()):
+    print(f"p.size(): {p.size()}")
+    for i in range(0, p.size()):
+        print(f"score[{i}], threshold: {scores[i]}, {threshold}")
+
         if scores[i] < threshold:
 
             print(f"dropping {i} ({scores[i]})")
 
             p.drop(i - dropshift)
-            drop_shift += 1
-        else:
-            break
+            dropshift += 1
 
     ##########################################################################
     # Restore the original scale of the coordinates
