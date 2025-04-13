@@ -119,16 +119,17 @@ def by_vec_angle_continuity(
 
 def by_vec_continuous_connectivity_score(
     p: Plot,
-    THRESHOLD_RADIANS: float = math.pi / 8 # [rad], 22.5 degrees
+    THRESHOLD_RADIANS: float = math.pi / 4 # [rad], 30 degrees
 ) -> None:
-    CONTINUE_OFFSET_LIMIT = 4
 
     def next_continuously_connectable(
         starting_index: int,
         successor_index: int,
         direction: str, # 'left' or 'right'
     ) -> int | None:
-        candidates: range = None
+        CONTINUE_OFFSET_LIMIT = 4
+
+        candidates: range
         match direction:
             case 'left':
                 candidates = reversed(range(
@@ -181,31 +182,27 @@ def by_vec_continuous_connectivity_score(
         # Let's define this as the (final) *score of the initial starting point*.
 
         left_score = 0
-        for initial_succ in reversed(range(
-            max(0, i - CONTINUE_OFFSET_LIMIT),
-            i
-        )):
+        for initial_succ in reversed(range(max(0, i - 2), i)):
             score_for_this_initial_succ = 0
             start, succ = i, initial_succ
+            # print(f"[left ] start, initial_succ: {start}, {initial_succ}")
             while succ is not None:
                 score_for_this_initial_succ += 1
                 next = next_continuously_connectable(start, succ, 'left')
                 start, succ = succ, next
+            # print(f"[left ] score_for_this_initial_succ: {score_for_this_initial_succ}")
             left_score = max(left_score, score_for_this_initial_succ)
 
         right_score = 0
-        for initial_succ in range(
-            i + 1,
-            min(p.size(), i + 1 + CONTINUE_OFFSET_LIMIT)
-        ):
+        for initial_succ in range(i + 1, min(i + 1 + 2, p.size())):
             score_for_this_initial_succ = 0
             start, succ = i, initial_succ
+            # print(f"[right] start, initial_succ: {start}, {initial_succ}")
             while succ is not None:
-                if i == 0:
-                    print(f"start: {start}({p.get(start)}), succ: {succ}({p.get(succ)})")
                 score_for_this_initial_succ += 1
                 next = next_continuously_connectable(start, succ, 'right')
                 start, succ = succ, next
+            # print(f"[right] score_for_this_initial_succ: {score_for_this_initial_succ}")
             right_score = max(right_score, score_for_this_initial_succ)
         
         scores[i] = left_score + right_score
@@ -218,10 +215,7 @@ def by_vec_continuous_connectivity_score(
     print(f"threshold: {threshold}")
     print(f"scores: {scores}")
     dropshift = 0
-    print(f"p.size(): {p.size()}")
     for i in range(0, p.size()):
-        print(f"score[{i}], threshold: {scores[i]}, {threshold}")
-
         if scores[i] < threshold:
 
             print(f"dropping {i} ({scores[i]})")
