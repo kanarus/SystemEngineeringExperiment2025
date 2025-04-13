@@ -1,6 +1,7 @@
 from lib.plot import Plot, Point
 
 import math
+from typing import Callable
 
 
 def by_vec_angle_continuity(
@@ -12,9 +13,6 @@ def by_vec_angle_continuity(
     between the vectors formed by consecutive points.
     """
 
-    # Because of the invariant of `Plot` class, the data points in `p`
-    # are sorted in ascending order of x (ω)
-    
     # Convert scaled coordinates to linear for the outlier detection
     if p.xlogscale:
         p.points = [Point(math.log10(point.x), point.y) for point in p.points]
@@ -39,8 +37,6 @@ def by_vec_angle_continuity(
         # 
         # When 1., we remove this point.
         # When 2., we keep this point and go to the next point.
-
-        THRESHOLD_RADIANS = math.pi / 12 # [rad], 15 degrees
 
         prev_vec_radians = math.atan2(prev1.y - prev2.y, prev1.x - prev2.x)
         this_vec_radians = math.atan2(this.y - prev1.y, this.x - prev1.x)
@@ -120,4 +116,105 @@ def by_vec_angle_continuity(
         p.points = [Point(10**point.x, point.y) for point in p.points]
     if p.ylogscale:
         p.points = [Point(point.x, 10**point.y) for point in p.points]
+
+
+def by_vec_continuous_connectivity_score(
+    p: Plot,
+    THRESHOLD_RADIANS: float = math.pi / 12, # [rad], 15 degrees
+) -> None:
+    ##########################################################################
+    # Convert scaled coordinates to linear for the outlier detection
+    if p.xlogscale:
+        p.points = [Point(math.log10(point.x), point.y) for point in p.points]
+    if p.ylogscale:
+        p.points = [Point(point.x, math.log10(point.y)) for point in p.points]
+    ##########################################################################
+
+    def next_continuously_connectable(
+        starting_index: int,
+        successor_index: int,
+        direction: str, # 'right' or 'left'
+    ) -> int | None:
+        match direction:
+            case 'right':
+                candidates = range(successor_index + 1, p.size())
+            case 'left':
+                candidates = reversed(range(0, successor_index))
+            case _:
+                raise ValueError("direction must be 'right' or 'left'")
+        start, succ = p.get(starting_index), p.get(successor_index)
+        angle = math.atan2(succ.y - start.y, succ.x - start.x)
+        for i in candidates:
+            c = p.get(i)
+            c_angle = math.atan2(c.y - succ.y, c.x - succ.x)
+            if abs(c_angle - angle) < THRESHOLD_RADIANS:
+                return i
+        else:
+            return None
+
+    scores = [0] * p.size()
+
+    for i in range(0, p.size()):
+        # For each selection of initial `succ`, we get the starting vector as `start -> succ`.
+        # Then, we can search, from all remaining points, the next point where
+        # the angle of the vector `succ -> next` is continuous with the angle of
+        # the vector starting `start -> succ`.
+        # We can repeat the process by replacing `start` with `succ` and `succ` with `next`.
+        # 
+        # Let's say the number of points that can be continuously connected by these vectors
+        # is the `max_continuously_connectable_group_size`, and define it as
+        # *the score of the initial starting point with the initial successor point* .
+        # 
+        # For instance, when the intial successor point is a outlier, the score will be 0
+        # or very low.
+        # 
+        # Then, by trying all possible initial successor points, we can get the maximum score
+        # of the initial starting point.
+        # Let's define this as the (final) *score of the initial starting point*.
+
+        left_score = 0
+        for initial_succ in reversed(range(0, i)):
+            score_for_this_initial_succ = 0
+            start, succ = i, initial_succ
+            while succ >= 0:
+                if (next := next_continuously_connectable(start, succ, 'left')) is not None:
+                    score_for_this_initial_succ += 1
+                    start, succ = succ, next
+                else:
+                    break
+            left_score = max(left_score, score_for_this_initial_succ)
+
+        right_score = 0
+        for initial_succ in range(i + 1, p.size()):
+            score_for_this_initial_succ = 0
+            start, succ = i, initial_succ
+            while succ < p.size():
+                if (next := next_continuously_connectable(start, succ, 'right')) is not None:
+                    score_for_this_initial_succ += 1
+                    start, succ = succ, next
+                else:
+                    break
+            right_score = max(right_score, score_for_this_initial_succ)
+        
+        scores[i] = left_score + right_score
+        print(f"{left_score} + {right_score} = {scores[i]}")
+
+    # Remove the outliers from the plot based on the scores.
+    # The points with 0 or very small scores are considered outliers and removed.
+    threshold = max(scores) / 2
+    dropshift = 0
+    for i in range(p.size()):
+        if scores[i] < threshold:
+            p.drop(i - dropshift)
+            drop_shift += 1
+        else:
+            break
+
+    ##########################################################################
+    # Restore the original scale of the coordinates
+    if p.xlogscale:
+        p.points = [Point(10**point.x, point.y) for point in p.points]
+    if p.ylogscale:
+        p.points = [Point(point.x, 10**point.y) for point in p.points]
+    ##########################################################################
 

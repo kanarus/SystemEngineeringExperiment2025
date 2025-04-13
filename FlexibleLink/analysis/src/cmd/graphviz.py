@@ -41,13 +41,18 @@ def main():
 
     print('saved direct plots')
 
-    with open(path.join(save_dir, 'BodeGainPlot.processed.svg'), mode='w') as f:
+    with open(path.join(save_dir, 'BodeGainPlot.processed1.svg'), mode='w') as f:
         p = d.BodeGainPlot()
         preprocess.by_vec_angle_continuity(p)
-        p.title = 'Bode Gain Plot (processed)'
+        p.title = 'Bode Gain Plot (by_vec_angle_continuity)'
+        p.figure().savefig(f, format='svg')
+    with open(path.join(save_dir, 'BodeGainPlot.processed2.svg'), mode='w') as f:
+        p = d.BodeGainPlot()
+        preprocess.by_vec_continuous_connectivity_score(p)
+        p.title = 'Bode Gain Plot (by_vec_continuous_connectivity_score)'
         p.figure().savefig(f, format='svg')
     
-    print('saved processed plot')
+    print('saved processed plots')
 
 if __name__ == '__main__':
     main()
