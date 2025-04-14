@@ -3,6 +3,40 @@ from lib.plot import Plot, Point
 import math
 
 
+def by_y_increase_continuity(
+    p: Plot,
+    THRESHOLD_INCREATE_CHANGE_RATE: float = 3 # [unit]
+) -> int:
+    """
+    In-place filter of the points in `p` based on the continuity of the increase rate
+    of the y coordinates.
+
+    The function checks the y coordinates of the points in `p` and identifies
+    outliers based on the change of the increase rate. If the increase rate
+    changes significantly (greater than `THRESHOLD_CHANGE_OF_INCREATE_RATE`),
+    the point is considered an outlier and is removed from `p`.
+    Returns the number of outliers removed.
+
+    This is based on the assumption that there's no so much outliers below the curve
+    than above that.
+    """
+    
+    outliers = []
+    for i in range(2, p.size()):
+        prev2, prev1, this = p.get(i-2), p.get(i-1), p.get(i)
+        y_diff, prev_y_diff = this.y - prev1.y, prev1.y - prev2.y
+        if y_diff > 0 and abs(y_diff / prev_y_diff) > THRESHOLD_INCREATE_CHANGE_RATE:
+            outliers.append(i)
+
+    dropshift = 0
+    for i in outliers:
+        print(f"dropping {i} (obvoius outlier)")
+        p.drop(i - dropshift)
+        dropshift += 1
+
+    return len(outliers)
+
+
 def by_vec_angle_continuity(
     p: Plot,
     THRESHOLD_RADIANS: float = math.pi / 12 # [rad], 15 degrees
@@ -17,6 +51,7 @@ def by_vec_angle_continuity(
         p.points = [Point(math.log10(point.x), point.y) for point in p.points]
     if p.ylogscale:
         p.points = [Point(point.x, math.log10(point.y)) for point in p.points]
+    by_y_increase_continuity(p)
 
     i = 2 # assuming the first two points (index 0, 1) are not outliers
     while i < p.size():
@@ -110,6 +145,10 @@ def by_vec_angle_continuity(
                         else:
                             i += 1 # go to the next point
 
+    for i in range(0, 1000):
+        if by_y_increase_continuity(p) == 0:
+            break
+
     # Restore the original scale of the coordinates
     if p.xlogscale:
         p.points = [Point(10**point.x, point.y) for point in p.points]
@@ -121,7 +160,6 @@ def by_vec_continuous_connectivity_score(
     p: Plot,
     THRESHOLD_RADIANS: float = math.pi / 4 # [rad], 30 degrees
 ) -> None:
-
     def next_continuously_connectable(
         starting_index: int,
         successor_index: int,
@@ -161,8 +199,9 @@ def by_vec_continuous_connectivity_score(
         p.points = [Point(point.x, math.log10(point.y)) for point in p.points]
     ##########################################################################
 
-    scores = [0] * p.size()
+    by_y_increase_continuity(p)
 
+    scores = [0] * p.size()
     for i in range(0, p.size()):
         # For each selection of initial `succ`, we get the starting vector as `start -> succ`.
         # Then, we can search, from all remaining points, the next point where
@@ -211,7 +250,7 @@ def by_vec_continuous_connectivity_score(
 
     # Remove the outliers from the plot based on the scores.
     # The points with 0 or very small scores are considered outliers and removed.
-    threshold = max(scores) / 4
+    threshold = max(scores) / 6
     print(f"threshold: {threshold}")
     print(f"scores: {scores}")
     dropshift = 0
