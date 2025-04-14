@@ -54,8 +54,8 @@ def amplify_valleys(
         if prev.y > this.y and this.y < next.y and (prev.distance(this) / prev.distance(next)) > THRESHOLD_DROP_RATE and (next.distance(this) / prev.distance(next)) > THRESHOLD_DROP_RATE:
             print(f"valley found at {i} ({this.x}, {this.y})")
             valley_count += 1
-            for i in range(0, p.size() // ((EXPECTED_VALLEY_COUNT + 1) * 2)):
-                p.insert(i, Point(this.x, this.y - i))
+            for i in range(0, p.size() // ((EXPECTED_VALLEY_COUNT + 1) * 3)):
+                p.insert(i, Point(this.x + 0.001 * i, this.y - i * 2.0))
             if valley_count >= EXPECTED_VALLEY_COUNT:
                 break
 

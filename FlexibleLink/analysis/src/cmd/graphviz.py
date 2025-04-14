@@ -57,7 +57,7 @@ def main():
             lambda x, a3, a2, a1, b2, b0: fit.BodeGainCurve(10**x, a3, a2, a1, b2, b0),
             xdata=[math.log10(x) for x in p.x()],
             ydata=p.y(),
-            p0=[2, 0, 1, 0.5, 200],
+            p0=[454, -7.9, -256, 1, 400],
         )
         print(f"popt: {popt}")
         pyplot.plot(
@@ -82,6 +82,7 @@ def main():
             lambda x, a3, a2, a1, b2, b0: fit.BodeGainCurve(10**x, a3, a2, a1, b2, b0),
             xdata=[math.log10(x) for x in p.x()],
             ydata=p.y(),
+            p0=[2.6, -0.99, 2.1, 0.6, 240],
         )
         print(f"popt: {popt}")
         pyplot.plot(
