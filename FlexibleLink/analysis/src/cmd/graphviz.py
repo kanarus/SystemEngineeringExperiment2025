@@ -49,6 +49,7 @@ def main():
         p = d.BodeGainPlot()
         p.title = 'Bode Gain Plot (processed by vec angle continuity)'
         preprocess.by_vec_angle_continuity(p)
+        preprocess.amplify_valleys(p)
 
         fig = p.figure()
 
@@ -56,13 +57,7 @@ def main():
             lambda x, a3, a2, a1, b2, b0: fit.BodeGainCurve(10**x, a3, a2, a1, b2, b0),
             xdata=[math.log10(x) for x in p.x()],
             ydata=p.y(),
-            # p0=(
-            #     1000,  # a3
-            #     100,  # a2
-            #     1,  # a1
-            #     1,  # b2
-            #     400,  # b0
-            # ),
+            p0=[2, 0, 1, 0.5, 200],
         )
         print(f"popt: {popt}")
         pyplot.plot(
@@ -79,6 +74,7 @@ def main():
         p = d.BodeGainPlot()
         p.title = 'Bode Gain Plot (processed by vec continuous connectivity score)'
         preprocess.by_vec_continuous_connectivity_score(p)
+        preprocess.amplify_valleys(p)
 
         fig = p.figure()
 
@@ -86,13 +82,6 @@ def main():
             lambda x, a3, a2, a1, b2, b0: fit.BodeGainCurve(10**x, a3, a2, a1, b2, b0),
             xdata=[math.log10(x) for x in p.x()],
             ydata=p.y(),
-            # p0=(
-            #     1.0,  # a3
-            #     1.0,  # a2
-            #     1.0,  # a1
-            #     1.0,  # b2
-            #     1.0,  # b0
-            # ),
         )
         print(f"popt: {popt}")
         pyplot.plot(

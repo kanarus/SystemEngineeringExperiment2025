@@ -1,14 +1,28 @@
 from matplotlib import pyplot
-from dataclasses import dataclass
 
 
-@dataclass
 class Point:
     """
-    A data class representing a point in 2D space with x and y coordinates.
+    A class representing a point in 2D space with x and y coordinates.
     """
     x: float
     y: float
+
+    def __init__(self, x: float, y: float):
+        self.x = x
+        self.y = y
+
+    def __str__(self) -> str:
+        """
+        Return a string representation of the point.
+        """
+        return f"Point({self.x}, {self.y})"
+    
+    def distance(self, another) -> float:
+        """
+        Calculate the Euclidean distance between this point and another point.
+        """
+        return ((self.x - another.x) ** 2 + (self.y - another.y) ** 2) ** 0.5
 
 
 class Plot:
@@ -93,6 +107,17 @@ class Plot:
             raise IndexError("Index out of range.")
         
         del self.points[index]
+
+    def insert(self, index: int, point: Point) -> None:
+        """
+        Insert a point at the specified index.
+        This modifies the plot in place.
+        """
+
+        if not index in range(0, self.size()):
+            raise IndexError("Index out of range.")
+        
+        self.points.insert(index, point)
 
     def figure(self) -> pyplot.Figure:
         """

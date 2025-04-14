@@ -7,19 +7,11 @@ def by_y_increase_continuity(
     p: Plot,
     THRESHOLD_INCREATE_CHANGE_RATE: float = 3 # [unit]
 ) -> int:
-    """
-    In-place filter of the points in `p` based on the continuity of the increase rate
-    of the y coordinates.
-
-    The function checks the y coordinates of the points in `p` and identifies
-    outliers based on the change of the increase rate. If the increase rate
-    changes significantly (greater than `THRESHOLD_CHANGE_OF_INCREATE_RATE`),
-    the point is considered an outlier and is removed from `p`.
-    Returns the number of outliers removed.
-
-    This is based on the assumption that there's no so much outliers below the curve
-    than above that.
-    """
+    # Convert scaled coordinates to linear for the outlier detection
+    if p.xlogscale:
+        p.points = [Point(math.log10(point.x), point.y) for point in p.points]
+    if p.ylogscale:
+        p.points = [Point(point.x, math.log10(point.y)) for point in p.points]
     
     outliers = []
     for i in range(2, p.size()):
@@ -34,7 +26,44 @@ def by_y_increase_continuity(
         p.drop(i - dropshift)
         dropshift += 1
 
+    # Restore the original scale of the coordinates
+    if p.xlogscale:
+        p.points = [Point(10**point.x, point.y) for point in p.points]
+    if p.ylogscale:
+        p.points = [Point(point.x, 10**point.y) for point in p.points]
+
     return len(outliers)
+
+
+def amplify_valleys(
+    p: Plot,
+    THRESHOLD_DROP_RATE: float = 5, # [unit]
+    EXPECTED_VALLEY_COUNT: int = 1, # [unit]
+) -> None:
+    print(f"amplifying valleys in {p.title}...")
+    
+    # Convert scaled coordinates to linear for the outlier detection
+    if p.xlogscale:
+        p.points = [Point(math.log10(point.x), point.y) for point in p.points]
+    if p.ylogscale:
+        p.points = [Point(point.x, math.log10(point.y)) for point in p.points]
+    
+    valley_count = 0
+    for i in range(1, p.size() - 1):
+        prev, this, next = p.get(i-1), p.get(i), p.get(i+1)
+        if prev.y > this.y and this.y < next.y and (prev.distance(this) / prev.distance(next)) > THRESHOLD_DROP_RATE and (next.distance(this) / prev.distance(next)) > THRESHOLD_DROP_RATE:
+            print(f"valley found at {i} ({this.x}, {this.y})")
+            valley_count += 1
+            for i in range(0, p.size() // ((EXPECTED_VALLEY_COUNT + 1) * 2)):
+                p.insert(i, Point(this.x, this.y - i))
+            if valley_count >= EXPECTED_VALLEY_COUNT:
+                break
+
+    # Restore the original scale of the coordinates
+    if p.xlogscale:
+        p.points = [Point(10**point.x, point.y) for point in p.points]
+    if p.ylogscale:
+        p.points = [Point(point.x, 10**point.y) for point in p.points]
 
 
 def by_vec_angle_continuity(
@@ -46,12 +75,13 @@ def by_vec_angle_continuity(
     between the vectors formed by consecutive points.
     """
 
+    by_y_increase_continuity(p)
+
     # Convert scaled coordinates to linear for the outlier detection
     if p.xlogscale:
         p.points = [Point(math.log10(point.x), point.y) for point in p.points]
     if p.ylogscale:
         p.points = [Point(point.x, math.log10(point.y)) for point in p.points]
-    by_y_increase_continuity(p)
 
     i = 2 # assuming the first two points (index 0, 1) are not outliers
     while i < p.size():
@@ -145,15 +175,15 @@ def by_vec_angle_continuity(
                         else:
                             i += 1 # go to the next point
 
-    for i in range(0, 1000):
-        if by_y_increase_continuity(p) == 0:
-            break
-
     # Restore the original scale of the coordinates
     if p.xlogscale:
         p.points = [Point(10**point.x, point.y) for point in p.points]
     if p.ylogscale:
         p.points = [Point(point.x, 10**point.y) for point in p.points]
+
+    for i in range(0, 1000):
+        if by_y_increase_continuity(p) == 0:
+            break
 
 
 def by_vec_continuous_connectivity_score(
@@ -191,6 +221,8 @@ def by_vec_continuous_connectivity_score(
         else:
             return None
 
+    by_y_increase_continuity(p)
+
     ##########################################################################
     # Convert scaled coordinates to linear for the outlier detection
     if p.xlogscale:
@@ -198,8 +230,6 @@ def by_vec_continuous_connectivity_score(
     if p.ylogscale:
         p.points = [Point(point.x, math.log10(point.y)) for point in p.points]
     ##########################################################################
-
-    by_y_increase_continuity(p)
 
     scores = [0] * p.size()
     for i in range(0, p.size()):
