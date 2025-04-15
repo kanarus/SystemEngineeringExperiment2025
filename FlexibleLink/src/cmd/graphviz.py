@@ -11,13 +11,41 @@ from matplotlib import pyplot
 
 class Args:
     filename: str
+    preopt1: None | tuple[float, float, float, float, float]
+    preopt2: None | tuple[float, float, float, float, float]
 
     def __init__(self):
         parser = argparse.ArgumentParser(description='take the target file name')
         parser.add_argument('filename', type=str, help='the target file name')
+        parser.add_argument(
+            '-p',
+            '--preopt',
+            type=float,
+            nargs=5,
+            help='the preopt parameters for BodeGainCurve',
+        )
+        parser.add_argument(
+            '-p1',
+            '--preopt1',
+            type=float,
+            nargs=5,
+            help='the preopt parameters for BodeGainCurve processed 1',
+        )
+        parser.add_argument(
+            '-p2',
+            '--preopt2',
+            type=float,
+            nargs=5,
+            help='the preopt parameters for BodeGainCurve processed 2',
+        )
         args = parser.parse_args()
 
         self.filename = args.filename
+        self.preopt1 = args.preopt1
+        self.preopt2 = args.preopt2
+        if args.preopt is not None:
+            self.preopt1 = args.preopt
+            self.preopt2 = args.preopt
 
 
 def main():
@@ -51,15 +79,30 @@ def main():
         preprocess.by_vec_angle_continuity(p)
         preprocess.amplify_valleys(p)
 
-        fig = p.figure()
-
+        if a.preopt1 is not None:
+            preopt = tuple(a.preopt1)
+            print(f"preopt: {preopt}")
+            pyplot.plot(
+                p.x(),
+                [fit.BodeGainCurve(x, *preopt) for x in p.x()],
+                label='myopt',
+                linestyle='--',
+                color='green',
+            )
         popt, _ = optimize.curve_fit(
-            lambda x, a3, a2, a1, b2, b0: fit.BodeGainCurve(10**x, a3, a2, a1, b2, b0),
-            xdata=[math.log10(x) for x in p.x()],
+            # lambda x, a3, a2, a1, b2, b0: fit.BodeGainCurve(10**x, a3, a2, a1, b2, b0),
+            # xdata=[math.log10(x) for x in p.x()],
+            # lambda x, a3, a2, a1, b2, b0: fit.BodeGainCurve(x, a3, a2, a1, b2, b0),
+            fit.BodeGainCurve,
+            xdata=p.x(),
             ydata=p.y(),
-            p0=[454, -7.9, -256, 1, 400],
+            p0=[0, 690, 1.6, -0.9, -320] if a.preopt1 is None else a.preopt1,
+            # p0 = [6.20118407e+01, 2.20686774e+03, 3.35098620e+04, -1.01441482e+02, -7.14178968e+04]
+            # p0=[-9.44103211e+01, 2.68362545e+03, -2.53859031e+05, 1.18508982e+02, 3.10061565e+05]
         )
         print(f"popt: {popt}")
+
+        fig = p.figure()
         pyplot.plot(
             p.x(),
             [fit.BodeGainCurve(x, *popt) for x in p.x()],
@@ -67,7 +110,6 @@ def main():
             linestyle='--',
             color='red',
         )
-
         fig.savefig(f, format='svg')
 
     with open(path.join(save_dir, 'BodeGainPlot.processed2.svg'), mode='w') as f:
@@ -78,11 +120,21 @@ def main():
 
         fig = p.figure()
 
+        if a.preopt2 is not None:
+            preopt = tuple(a.preopt2)
+            print(f"preopt: {preopt}")
+            pyplot.plot(
+                p.x(),
+                [fit.BodeGainCurve(x, *preopt) for x in p.x()],
+                label='myopt',
+                linestyle='--',
+                color='green',
+            )
         popt, _ = optimize.curve_fit(
             lambda x, a3, a2, a1, b2, b0: fit.BodeGainCurve(10**x, a3, a2, a1, b2, b0),
             xdata=[math.log10(x) for x in p.x()],
             ydata=p.y(),
-            p0=[2.6, -0.99, 2.1, 0.6, 240],
+            p0=[0, -24, -9.2, -2.2, -414] if a.preopt2 is None else a.preopt2,
         )
         print(f"popt: {popt}")
         pyplot.plot(

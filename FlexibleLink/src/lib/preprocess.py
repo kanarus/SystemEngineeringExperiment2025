@@ -276,7 +276,7 @@ def by_vec_continuous_connectivity_score(
         
         scores[i] = left_score + right_score
 
-        print(f"{left_score} + {right_score} = {scores[i]}")
+        # print(f"{left_score} + {right_score} = {scores[i]}")
 
     # Remove the outliers from the plot based on the scores.
     # The points with 0 or very small scores are considered outliers and removed.
@@ -287,7 +287,7 @@ def by_vec_continuous_connectivity_score(
     for i in range(0, p.size()):
         if scores[i] < threshold:
 
-            print(f"dropping {i} ({scores[i]})")
+            # print(f"dropping {i} ({scores[i]})")
 
             p.drop(i - dropshift)
             dropshift += 1
