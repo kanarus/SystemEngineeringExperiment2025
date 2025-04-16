@@ -3,36 +3,46 @@ from lib.plot import Plot, Point
 import math
 
 
-def by_y_increase_continuity(
+def filter_by_y_increase_continuity(
     p: Plot,
+    repeat_until_exaustaed: bool = False,
     THRESHOLD_INCREATE_CHANGE_RATE: float = 3 # [unit]
-) -> int:
-    # Convert scaled coordinates to linear for the outlier detection
-    if p.xlogscale:
-        p.points = [Point(math.log10(point.x), point.y) for point in p.points]
-    if p.ylogscale:
-        p.points = [Point(point.x, math.log10(point.y)) for point in p.points]
+):
+    def filter_once() -> int:
+        # Convert scaled coordinates to linear for the outlier detection
+        if p.xlogscale:
+            p.points = [Point(math.log10(point.x), point.y) for point in p.points]
+        if p.ylogscale:
+            p.points = [Point(point.x, math.log10(point.y)) for point in p.points]
+
+        outliers = []
+        for i in range(2, p.size()):
+            prev2, prev1, this = p.get(i-2), p.get(i-1), p.get(i)
+            y_diff, prev_y_diff = this.y - prev1.y, prev1.y - prev2.y
+            if y_diff > 0 and abs(y_diff / prev_y_diff) > THRESHOLD_INCREATE_CHANGE_RATE:
+                outliers.append(i)
+
+        dropshift = 0
+        for i in outliers:
+            print(f"dropping {i} (obvoius outlier)")
+            p.drop(i - dropshift)
+            dropshift += 1
+
+        # Restore the original scale of the coordinates
+        if p.xlogscale:
+            p.points = [Point(10**point.x, point.y) for point in p.points]
+        if p.ylogscale:
+            p.points = [Point(point.x, 10**point.y) for point in p.points]
+
+        return len(outliers)
     
-    outliers = []
-    for i in range(2, p.size()):
-        prev2, prev1, this = p.get(i-2), p.get(i-1), p.get(i)
-        y_diff, prev_y_diff = this.y - prev1.y, prev1.y - prev2.y
-        if y_diff > 0 and abs(y_diff / prev_y_diff) > THRESHOLD_INCREATE_CHANGE_RATE:
-            outliers.append(i)
-
-    dropshift = 0
-    for i in outliers:
-        print(f"dropping {i} (obvoius outlier)")
-        p.drop(i - dropshift)
-        dropshift += 1
-
-    # Restore the original scale of the coordinates
-    if p.xlogscale:
-        p.points = [Point(10**point.x, point.y) for point in p.points]
-    if p.ylogscale:
-        p.points = [Point(point.x, 10**point.y) for point in p.points]
-
-    return len(outliers)
+    if repeat_until_exaustaed:
+        while True:
+            n_outliers = filter_once()
+            if n_outliers == 0:
+                break
+    else:
+        filter_once()
 
 
 def amplify_valleys(
@@ -66,7 +76,7 @@ def amplify_valleys(
         p.points = [Point(point.x, 10**point.y) for point in p.points]
 
 
-def by_vec_angle_continuity(
+def filter_by_vec_angle_continuity(
     p: Plot,
     THRESHOLD_RADIANS: float = math.pi / 12 # [rad], 15 degrees
 ) -> None:
@@ -74,8 +84,6 @@ def by_vec_angle_continuity(
     In-place filter of the points in `p` based on the continuity of the angle
     between the vectors formed by consecutive points.
     """
-
-    by_y_increase_continuity(p)
 
     # Convert scaled coordinates to linear for the outlier detection
     if p.xlogscale:
@@ -181,12 +189,8 @@ def by_vec_angle_continuity(
     if p.ylogscale:
         p.points = [Point(point.x, 10**point.y) for point in p.points]
 
-    for i in range(0, 1000):
-        if by_y_increase_continuity(p) == 0:
-            break
 
-
-def by_vec_continuous_connectivity_score(
+def filter_by_vec_continuous_connectivity_score(
     p: Plot,
     THRESHOLD_RADIANS: float = math.pi / 4 # [rad], 30 degrees
 ) -> None:
@@ -220,8 +224,6 @@ def by_vec_continuous_connectivity_score(
                 return i
         else:
             return None
-
-    by_y_increase_continuity(p)
 
     ##########################################################################
     # Convert scaled coordinates to linear for the outlier detection

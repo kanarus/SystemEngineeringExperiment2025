@@ -119,12 +119,12 @@ class Plot:
         
         self.points.insert(index, point)
 
-    def figure(self) -> pyplot.Figure:
+    def into_figure(self) -> pyplot.Figure:
         """
         Create a matplotlib figure for the plot.
         """
 
-        figure = pyplot.figure()
+        figure = pyplot.into_figure()
 
         if self.title is not None:
             pyplot.title(self.title)

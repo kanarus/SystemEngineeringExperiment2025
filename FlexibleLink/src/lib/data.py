@@ -8,7 +8,7 @@ import pandas
 class SampleData:
     """
     Parsed data from a CSV file containing frequency response data.
-    The CSV file should have three float rows:
+    The CSV file should have three float rows in the following order:
 
     1. ω (angular frequency)
     2. System Gain (SysGain)
