@@ -8,41 +8,39 @@ def filter_by_y_increase_continuity(
     repeat_until_exaustaed: bool = False,
     THRESHOLD_INCREATE_CHANGE_RATE: float = 3 # [unit]
 ):
-    def filter_once() -> int:
-        # Convert scaled coordinates to linear for the outlier detection
-        if p.xlogscale:
-            p.points = [Point(math.log10(point.x), point.y) for point in p.points]
-        if p.ylogscale:
-            p.points = [Point(point.x, math.log10(point.y)) for point in p.points]
-
+    def filter_once(rescaled_plot: Plot) -> int:
         outliers = []
-        for i in range(2, p.size()):
-            prev2, prev1, this = p.get(i-2), p.get(i-1), p.get(i)
+        for i in range(2, rescaled_plot.size()):
+            prev2, prev1, this = rescaled_plot.get(i-2), rescaled_plot.get(i-1), rescaled_plot.get(i)
             y_diff, prev_y_diff = this.y - prev1.y, prev1.y - prev2.y
             if y_diff > 0 and abs(y_diff / prev_y_diff) > THRESHOLD_INCREATE_CHANGE_RATE:
                 outliers.append(i)
-
+        print(f"obvious outliers: {outliers}")
         dropshift = 0
         for i in outliers:
-            print(f"dropping {i} (obvoius outlier)")
-            p.drop(i - dropshift)
+            rescaled_plot.drop(i - dropshift)
             dropshift += 1
-
-        # Restore the original scale of the coordinates
-        if p.xlogscale:
-            p.points = [Point(10**point.x, point.y) for point in p.points]
-        if p.ylogscale:
-            p.points = [Point(point.x, 10**point.y) for point in p.points]
-
         return len(outliers)
     
+    # Convert scaled coordinates to linear for the outlier detection
+    if p.xlogscale:
+        p.points = [Point(math.log10(point.x), point.y) for point in p.points]
+    if p.ylogscale:
+        p.points = [Point(point.x, math.log10(point.y)) for point in p.points]
+
     if repeat_until_exaustaed:
         while True:
-            n_outliers = filter_once()
+            n_outliers = filter_once(p)
             if n_outliers == 0:
                 break
     else:
-        filter_once()
+        filter_once(p)
+
+    # Restore the original scale of the coordinates
+    if p.xlogscale:
+        p.points = [Point(10**point.x, point.y) for point in p.points]
+    if p.ylogscale:
+        p.points = [Point(point.x, 10**point.y) for point in p.points]
 
 
 def amplify_valleys(
