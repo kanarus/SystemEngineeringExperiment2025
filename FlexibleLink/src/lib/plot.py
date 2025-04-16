@@ -124,7 +124,7 @@ class Plot:
         Create a matplotlib figure for the plot.
         """
 
-        figure = pyplot.into_figure()
+        figure = pyplot.figure()
 
         if self.title is not None:
             pyplot.title(self.title)

@@ -1,10 +1,10 @@
 from lib import plot, preprocess, fit
 from lib.data import SampleData
 
-import math
 import argparse
 from os import path, makedirs
 
+import numpy
 from scipy import optimize
 from matplotlib import pyplot
 
@@ -78,7 +78,7 @@ def main():
                 linestyle='--',
                 color='green',
             )
-        opt, _ = optimize.curve_fit(
+        opt, cov = optimize.curve_fit(
             # lambda x, a3, a2, a1, b2, b0: fit.BodeGainCurve(10**x, a3, a2, a1, b2, b0),
             # xdata=[math.log10(x) for x in p.x()],
             # lambda x, a3, a2, a1, b2, b0: fit.BodeGainCurve(x, a3, a2, a1, b2, b0),
@@ -90,6 +90,7 @@ def main():
             # p0=[-9.44103211e+01, 2.68362545e+03, -2.53859031e+05, 1.18508982e+02, 3.10061565e+05]
         )
         print(f"optimal parameters: {opt}")
+        print(f"standard deviation errors: {numpy.sqrt(numpy.diag(cov))}")
 
         fig = p.into_figure()
         pyplot.plot(
