@@ -70,7 +70,7 @@ def assert_stable(
     roots: list = sympy.solve(s**4 + a3 * s**3 + a2 * s**2 + a1 * s)
     print("roots:", roots)
 
-    if not roots.count(0.0) == 1 :
+    if not roots.count(0.0) == 1: # s * (...) = 0
         raise ValueError("One root must be 0.")
     roots.remove(0.0)
     if not all([sympy.re(root) < 0 for root in roots]):
