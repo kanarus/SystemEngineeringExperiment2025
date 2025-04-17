@@ -114,17 +114,11 @@ def main():
         fig.savefig(f, format='svg')
         
     with open(path.join(save_dir, 'NyquistPlot.processed.svg'), mode='w') as f:
-        print('drop history:', bode_gain_plot.drop_history)
-
         d = deepcopy(d)
         for i in bode_gain_plot.drop_history:
             d.drop(i)
         
         nyquist_plot = d.NyquistPlot()
-
-        # raise NotImplementedError('drop from nyquist_plot as bode_gain_plot')
-        #for i in bode_gain_plot.drop_history:
-        #    nyquist_plot.drop(i)
 
         nyquist_plot.title = 'Nyquist Plot (processed)'
 
