@@ -85,13 +85,15 @@ def main():
             fit.BodeGainCurve,
             xdata=p.x(),
             ydata=p.y(),
-            p0=[0, 690, 1.6, -0.9, -320] if a.preopt is None else a.preopt,
-            # p0 = [6.20118407e+01, 2.20686774e+03, 3.35098620e+04, -1.01441482e+02, -7.14178968e+04]
             # p0=[-9.44103211e+01, 2.68362545e+03, -2.53859031e+05, 1.18508982e+02, 3.10061565e+05]
+            # p0=[0, 690, 1.6, -0.9, -320] if a.preopt is None else a.preopt,
+            # p0 = [6.20118407e+01, 2.20686774e+03, 3.35098620e+04, -1.01441482e+02, -7.14178968e+04]
+            # p0 = [6.20118407e+01, 2.20686774e+03, 3.35098620e+04, 1.01441482e+02, 7.14178968e+04]
+            p0 = [6.78323768e+01, 2.25315109e+03, 4.65914534e+04, 1.01368177e+02, 7.13662697e+04]
         )
         print(f"optimal parameters: {opt}")
         print(f"standard deviation errors: {numpy.sqrt(numpy.diag(cov))}")
-
+        
         fig = p.into_figure()
         pyplot.plot(
             p.x(),

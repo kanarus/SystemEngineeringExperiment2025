@@ -58,12 +58,12 @@ class SampleData:
 
     def BodeGainPlot(self) -> plot.Plot:
         return plot.Plot(
+            xlogscale=True,
             x=self.ω(),
             y=list(map(lambda it: 20 * math.log10(it), self.SysGain())),
             title='Bode Gain Plot',
             xlabel='ω [rad/sec]',
             ylabel='20log|G(jω)|',
-            xlogscale=True,
         )
     
     def NyquistPlot(self) -> plot.Plot:
