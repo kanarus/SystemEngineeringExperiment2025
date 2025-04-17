@@ -1,3 +1,4 @@
+import numpy
 from matplotlib import pyplot
 
 
@@ -38,6 +39,8 @@ class Plot:
     ylabel: str | None = None
     xlogscale: bool = False
     ylogscale: bool = False
+
+    drop_history: list[int] = []
 
     def __init__(
         self,
@@ -105,6 +108,8 @@ class Plot:
 
         if not index in range(0, self.size()):
             raise IndexError("Index out of range.")
+        
+        self.drop_history.append(index)
         
         del self.points[index]
 

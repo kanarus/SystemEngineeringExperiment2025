@@ -2,6 +2,7 @@ from lib import plot, preprocess, fit
 from lib.data import SampleData
 
 import argparse
+from copy import deepcopy
 from os import path, makedirs
 
 import numpy
@@ -62,42 +63,75 @@ def main():
 
     print('saved direct plots')
 
-    with open(path.join(save_dir, 'BodeGainPlot.processed.svg'), mode='w') as f:
-        p = d.BodeGainPlot()
-        p.title = 'Bode Gain Plot (processed)'
-        
-        process_bode_gain_plot(p)
+    p0 = [
+        6.78323768e+01,
+        2.25315109e+03,
+        4.65914534e+04,
+        1.01368177e+02,
+        7.13662697e+04,
+    ]
 
+    bode_gain_plot = d.BodeGainPlot()
+    
+    process_bode_gain_plot(bode_gain_plot)
+    
+    opt, cov = optimize.curve_fit(
+        # lambda x, a3, a2, a1, b2, b0: fit.BodeGainCurve(10**x, a3, a2, a1, b2, b0),
+        # xdata=[math.log10(x) for x in bode_gain_plot.x()],
+        # lambda x, a3, a2, a1, b2, b0: fit.BodeGainCurve(x, a3, a2, a1, b2, b0),
+        fit.BodeGainCurve,
+        xdata=bode_gain_plot.x(),
+        ydata=bode_gain_plot.y(),
+        # p0=[-9.44103211e+01, 2.68362545e+03, -2.53859031e+05, 1.18508982e+02, 3.10061565e+05]
+        # p0=[0, 690, 1.6, -0.9, -320] if a.preopt is None else a.preopt,
+        # p0=[6.20118407e+01, 2.20686774e+03, 3.35098620e+04, -1.01441482e+02, -7.14178968e+04]
+        # p0=[6.20118407e+01, 2.20686774e+03, 3.35098620e+04, 1.01441482e+02, 7.14178968e+04]
+        p0=p0 if a.preopt is None else a.preopt,
+    )
+    if a.preopt is not None:
+        print(f"preopt: {a.preopt}")
+    print(f"optimal parameters: {opt}")
+    print(f"standard deviation errors: {numpy.sqrt(numpy.diag(cov))}")
+    
+    with open(path.join(save_dir, 'BodeGainPlot.processed.svg'), mode='w') as f:
+        bode_gain_plot.title = 'Bode Gain Plot (processed)'
+        fig = bode_gain_plot.into_figure()
+        pyplot.plot(
+            bode_gain_plot.x(),
+            [fit.BodeGainCurve(x, *opt) for x in bode_gain_plot.x()],
+            label='fit',
+            linestyle='--',
+            color='red',
+        )
         if a.preopt is not None:
-            preopt = tuple(a.preopt)
-            print(f"preopt: {preopt}")
             pyplot.plot(
-                p.x(),
-                [fit.BodeGainCurve(x, *preopt) for x in p.x()],
+                bode_gain_plot.x(),
+                [fit.BodeGainCurve(x, *a.preopt) for x in bode_gain_plot.x()],
                 label='myopt',
                 linestyle='--',
                 color='green',
             )
-        opt, cov = optimize.curve_fit(
-            # lambda x, a3, a2, a1, b2, b0: fit.BodeGainCurve(10**x, a3, a2, a1, b2, b0),
-            # xdata=[math.log10(x) for x in p.x()],
-            # lambda x, a3, a2, a1, b2, b0: fit.BodeGainCurve(x, a3, a2, a1, b2, b0),
-            fit.BodeGainCurve,
-            xdata=p.x(),
-            ydata=p.y(),
-            # p0=[-9.44103211e+01, 2.68362545e+03, -2.53859031e+05, 1.18508982e+02, 3.10061565e+05]
-            # p0=[0, 690, 1.6, -0.9, -320] if a.preopt is None else a.preopt,
-            # p0 = [6.20118407e+01, 2.20686774e+03, 3.35098620e+04, -1.01441482e+02, -7.14178968e+04]
-            # p0 = [6.20118407e+01, 2.20686774e+03, 3.35098620e+04, 1.01441482e+02, 7.14178968e+04]
-            p0 = [6.78323768e+01, 2.25315109e+03, 4.65914534e+04, 1.01368177e+02, 7.13662697e+04]
-        )
-        print(f"optimal parameters: {opt}")
-        print(f"standard deviation errors: {numpy.sqrt(numpy.diag(cov))}")
+        fig.savefig(f, format='svg')
         
-        fig = p.into_figure()
+    with open(path.join(save_dir, 'NyquistPlot.processed.svg'), mode='w') as f:
+        print('drop history:', bode_gain_plot.drop_history)
+
+        d = deepcopy(d)
+        for i in bode_gain_plot.drop_history:
+            d.drop(i)
+        
+        nyquist_plot = d.NyquistPlot()
+
+        # raise NotImplementedError('drop from nyquist_plot as bode_gain_plot')
+        #for i in bode_gain_plot.drop_history:
+        #    nyquist_plot.drop(i)
+
+        nyquist_plot.title = 'Nyquist Plot (processed)'
+
+        fig = nyquist_plot.into_figure()
         pyplot.plot(
-            p.x(),
-            [fit.BodeGainCurve(x, *opt) for x in p.x()],
+            nyquist_plot.x(),
+            [fit.NiquistCurve(x, *opt) for x in nyquist_plot.x()],
             label='fit',
             linestyle='--',
             color='red',

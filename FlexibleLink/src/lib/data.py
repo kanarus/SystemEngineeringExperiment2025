@@ -38,6 +38,12 @@ class SampleData:
     def __str__(self):
         return str(self.__dataframe)
     
+    def drop(self, index: int) -> None:
+        """
+        Drop a row from the dataframe by index.
+        """
+        self.__dataframe.drop(index=self.__dataframe.index[index], inplace=True)
+    
     def ω(self) -> list[float]:
         return self.__dataframe['ω'].to_list()
     
