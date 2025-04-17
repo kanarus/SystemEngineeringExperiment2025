@@ -49,14 +49,6 @@ def assert_stable(
     b2: float, b0: float,
 ) -> None:
     """
-    Assert that the system is stable.
-    """
-    # if a3 < 0 or a2 < 0 or a1 < 0 or b2 < 0 or b0 < 0:
-    #     raise ValueError("The system is not stable.")
-    # 
-    # todo
-
-    """
     Check the characteristic polynomial is stable.
     The characteristic polynomial is given by
 
