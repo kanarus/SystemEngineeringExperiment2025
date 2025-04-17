@@ -13,6 +13,7 @@ from matplotlib import pyplot
 class Args:
     filename: str
     amplify_valley: bool
+    n_repeat_y_increase_continuity: int | None
     preopt: None | tuple[float, float, float, float, float]
 
     def __init__(self):
@@ -25,6 +26,12 @@ class Args:
             help='amplify the valley in the Bode Gain Plot',
         )
         parser.add_argument(
+            '-n',
+            '--n-repeat-y-increase-continuity',
+            type=int,
+            help='number of repeating the y increase continuity filter',
+        )
+        parser.add_argument(
             '-p',
             '--preopt',
             type=float,
@@ -35,6 +42,7 @@ class Args:
         args = parser.parse_args()
 
         self.filename = args.filename
+        self.n_repeat_y_increase_continuity = args.n_repeat_y_increase_continuity
         self.amplify_valley = args.amplify_valley
         self.preopt = args.preopt
 
@@ -42,12 +50,15 @@ class Args:
 def process_bode_gain_plot(
     p: plot.Plot,
     amplify_vallays: bool = False,
+    n_repeat_y_increase_continuity: int | None = None,
 ) -> None:
-    preprocess.filter_by_y_increase_continuity(p)
-    preprocess.filter_by_vec_angle_continuity(p)
-    preprocess.filter_by_y_increase_continuity(p, repeat_until_exaustaed=True)
-    if amplify_vallays:
-        preprocess.amplify_valleys(p)
+    print(f"n_repeat_y_increase_continuity: {n_repeat_y_increase_continuity}")
+    print(f"amplify_vallays: {amplify_vallays}")
+    preprocess.filter_by_y_increase_continuity(p, repeat_count=n_repeat_y_increase_continuity)
+    #preprocess.filter_by_vec_angle_continuity(p)
+    #preprocess.filter_by_y_increase_continuity(p, repeat_until_exaustaed=True)
+    #if amplify_vallays:
+    #    preprocess.amplify_valleys(p)
 
 
 def main():
@@ -88,6 +99,7 @@ def main():
     process_bode_gain_plot(
         bode_gain_plot,
         amplify_vallays=a.amplify_valley,
+        n_repeat_y_increase_continuity=a.n_repeat_y_increase_continuity,
     )
     
     opt, cov = optimize.curve_fit(
@@ -148,6 +160,8 @@ def main():
         fig.savefig(f, format='svg')
 
     print('saved processed plots')
+
+    fit.assert_stable(*opt)
 
 
 if __name__ == '__main__':

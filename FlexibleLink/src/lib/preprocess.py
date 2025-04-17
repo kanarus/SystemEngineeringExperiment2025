@@ -6,6 +6,7 @@ import math
 def filter_by_y_increase_continuity(
     p: Plot,
     repeat_until_exaustaed: bool = False,
+    repeat_count: int = None,
     THRESHOLD_INCREATE_CHANGE_RATE: float = 3 # [unit]
 ):
     def filter_once(rescaled_plot: Plot) -> int:
@@ -28,7 +29,10 @@ def filter_by_y_increase_continuity(
     if p.ylogscale:
         p.points = [Point(point.x, math.log10(point.y)) for point in p.points]
 
-    if repeat_until_exaustaed:
+    if repeat_count is not None:
+        for _ in range(repeat_count):
+            n_outliers = filter_once(p)
+    elif repeat_until_exaustaed:
         while True:
             n_outliers = filter_once(p)
             if n_outliers == 0:
