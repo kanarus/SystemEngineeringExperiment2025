@@ -12,11 +12,18 @@ from matplotlib import pyplot
 
 class Args:
     filename: str
+    amplify_valley: bool
     preopt: None | tuple[float, float, float, float, float]
 
     def __init__(self):
         parser = argparse.ArgumentParser(description='take the target file name')
         parser.add_argument('filename', type=str, help='the target file name')
+        parser.add_argument(
+            '-a',
+            '--amplify-valley',
+            action='store_true',
+            help='amplify the valley in the Bode Gain Plot',
+        )
         parser.add_argument(
             '-p',
             '--preopt',
@@ -28,14 +35,19 @@ class Args:
         args = parser.parse_args()
 
         self.filename = args.filename
+        self.amplify_valley = args.amplify_valley
         self.preopt = args.preopt
 
 
-def process_bode_gain_plot(p: plot.Plot) -> None:
+def process_bode_gain_plot(
+    p: plot.Plot,
+    amplify_vallays: bool = False,
+) -> None:
     preprocess.filter_by_y_increase_continuity(p)
     preprocess.filter_by_vec_angle_continuity(p)
     preprocess.filter_by_y_increase_continuity(p, repeat_until_exaustaed=True)
-    preprocess.amplify_valleys(p)
+    if amplify_vallays:
+        preprocess.amplify_valleys(p)
 
 
 def main():
@@ -73,7 +85,10 @@ def main():
 
     bode_gain_plot = d.BodeGainPlot()
     
-    process_bode_gain_plot(bode_gain_plot)
+    process_bode_gain_plot(
+        bode_gain_plot,
+        amplify_vallays=a.amplify_valley,
+    )
     
     opt, cov = optimize.curve_fit(
         # lambda x, a3, a2, a1, b2, b0: fit.BodeGainCurve(10**x, a3, a2, a1, b2, b0),
