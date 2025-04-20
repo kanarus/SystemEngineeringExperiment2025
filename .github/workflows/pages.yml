@@ -1,6 +1,7 @@
 on:
   push:
     branches: [main]
+    paths: [slides/**]
 
 jobs:
   build:
