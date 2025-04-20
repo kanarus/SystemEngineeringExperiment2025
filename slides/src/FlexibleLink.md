@@ -2,7 +2,6 @@
 marp: true
 paginate: true
 footer: 2025-04-25 | システム工学実験2025
-# image: https://slides.su8.run/241004-hupass/index.jpg
 ---
 
 # フレキシブルリンク 共通課題プレゼン
@@ -17,18 +16,20 @@ header: フレキシブルリンク 共通課題プレゼン
 
 # メンバー
 
-### システム同定
+<div class="columns" style="width: 80%; margin: 0 10%;">
+
+## システム同定
 
 - 石田大輝
 - 梅田竜成
 - 佐々木哉人
 
-### 制御器設計
+## 制御器設計
 
 - 亀山 ？
 - 黒川啓太
 
-<small>*(五十音順)*</small>
+</div>
 
 ---
 
