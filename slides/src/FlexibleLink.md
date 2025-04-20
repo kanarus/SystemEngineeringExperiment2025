@@ -79,10 +79,10 @@ header: フレキシブルリンク 共通課題 :: システム同定
 </style>
 
 <div class="columns">
-   <image src="./images/Plus_1hour_BodeGainPlot.png"/>
-   <image src="./images/Plus_1hour_NyquistPlot.png"/>
-   <image src="./images/Plus2_1hour_BodeGainPlot.png"/>
-   <image src="./images/Plus2_1hour_NyquistPlot.png"/>
+   <img src="./images/Plus_1hour_BodeGainPlot.png"/>
+   <img src="./images/Plus_1hour_NyquistPlot.png"/>
+   <img src="./images/Plus2_1hour_BodeGainPlot.png"/>
+   <img src="./images/Plus2_1hour_NyquistPlot.png"/>
 </div>
 
 ---
