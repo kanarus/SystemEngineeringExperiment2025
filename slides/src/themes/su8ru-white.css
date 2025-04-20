@@ -46,10 +46,6 @@ section::after {
   gap: 1rem;
 }
 
-.center-block {
-  text-align: center;
-}
-
 :root {
   --su8ru-main: oklch(0.65 0.05 240);
   --su8ru-dark: oklch(0.5 0.05 240);

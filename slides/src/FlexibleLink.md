@@ -1,6 +1,7 @@
 ---
 marp: true
 paginate: true
+size: 4:3
 footer: 2025-04-25 | システム工学実験2025
 ---
 
