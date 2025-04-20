@@ -16,7 +16,17 @@ header: フレキシブルリンク 共通課題プレゼン
 
 # メンバー
 
-<div class="columns" style="width: 80%; margin: 0 10%;">
+<style scoped>
+   div {
+      width: 60%;
+      margin: 0 auto;
+   }
+   h2 {
+      text-align: center;
+   }
+</style>
+
+<div class="columns">
 
 ## システム同定
 
