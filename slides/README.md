@@ -1,4 +1,10 @@
-refs:
+deploys:
+
+- https://kanarus.github.io/SystemEngineeringExperiment2025/FlexibleLink
+
+---
+
+Built based on
 
 - https://zenn.dev/su8ru/articles/marp-cli-lt-slide
 - https://github.com/su8ru/slides

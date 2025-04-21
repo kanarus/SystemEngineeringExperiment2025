@@ -1,1 +1,3 @@
 - [FlexibleLink](./FlexibleLink/README.md)
+- [slides](./slides/README.md)
+  - https://kanarus.github.io/SystemEngineeringExperiment2025/FlexibleLink
