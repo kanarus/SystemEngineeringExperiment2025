@@ -4,7 +4,7 @@ deploys:
 
 ---
 
-Built based on
+Built based on [Marp](https://marp.app/) and [marp-cli](https://github.com/marp-team/marp-cli), referencing:
 
 - https://zenn.dev/su8ru/articles/marp-cli-lt-slide
 - https://github.com/su8ru/slides

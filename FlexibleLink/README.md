@@ -34,4 +34,4 @@ uv run ./src/cmd/graphviz.py ./path/to/data_file
 uv run ./src/cmd/graphviz.py ./data/SKE2024_data11-Apr-2025_1445.dat
 ```
 
-`FlexibleLink/data` is git-ignored.
+`FlexibleLink/data` directory is git-ignored.
