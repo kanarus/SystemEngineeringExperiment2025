@@ -10,7 +10,7 @@
     "build:clean": "rimraf dist",
     "build:html": "marp --engine ./engine.mjs",
     "build:ogimage": "marp --image jpeg --allow-local-files",
-    "build:images": "cpx \"src/**/images/*\" dist",
+    "build:images": "cpx \"src/*.svg\" dist && cpx \"src/*.png\" dist",
     "build:powerpoint": "marp --engine ./engine.mjs --pptx",
     "build": "run-p build:*"
   },
