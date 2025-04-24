@@ -11,6 +11,7 @@
     "build:html": "marp --engine ./engine.mjs",
     "build:ogimage": "marp --image jpeg --allow-local-files",
     "build:images": "cpx \"src/**/images/*\" dist",
+    "build:powerpoint": "marp --engine ./engine.mjs --pptx",
     "build": "run-p build:*"
   },
   "devDependencies": {

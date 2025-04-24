@@ -52,7 +52,7 @@ header: フレキシブルリンク 共通課題 :: システム同定
 
 ---
 
-![bg 80%](./images/BodeGainPlot.processed.svg)
+![bg 80%](./BodeGainPlot.processed.svg)
 
 ---
 
@@ -79,10 +79,10 @@ header: フレキシブルリンク 共通課題 :: システム同定
 </style>
 
 <div class="columns">
-   <img src="./images/Plus_1hour_BodeGainPlot.png"/>
-   <img src="./images/Plus_1hour_NyquistPlot.png"/>
-   <img src="./images/Plus2_1hour_BodeGainPlot.png"/>
-   <img src="./images/Plus2_1hour_NyquistPlot.png"/>
+   <img src="./Plus_1hour_BodeGainPlot.png"/>
+   <img src="./Plus_1hour_NyquistPlot.png"/>
+   <img src="./Plus2_1hour_BodeGainPlot.png"/>
+   <img src="./Plus2_1hour_NyquistPlot.png"/>
 </div>
 
 ---
