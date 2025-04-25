@@ -1,4 +1,0 @@
-theme: ./src/themes/su8ru-white.css
-inputDir: ./src
-output: ./dist
-lang: ja
