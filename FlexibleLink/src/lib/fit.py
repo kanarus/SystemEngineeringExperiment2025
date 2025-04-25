@@ -68,6 +68,8 @@ def assert_stable(
         # remove just first 0.0
         roots.remove(0.0)
     if not all([sympy.re(root) < 0 for root in roots]):
-        raise ValueError("The system is not stable.")
+        raise ValueError("The system is not stable: roots are not all in the left half plane.")
+    if not all([roots.count(root) == 1 for root in roots]):
+        raise ValueError("The system is not stable: has multiple roots.")
     print("The system is stable.")
     
