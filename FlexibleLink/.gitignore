@@ -11,4 +11,5 @@ wheels/
 
 # other
 memo.md
-**/data
+/data
+/plots

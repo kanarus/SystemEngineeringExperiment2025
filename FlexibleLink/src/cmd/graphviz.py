@@ -136,7 +136,7 @@ def main():
                 [fit.BodeGainCurve(x, *a.preopt) for x in bode_gain_plot.x()],
                 label='myopt',
                 linestyle='--',
-                color='green',
+                color='red',
             )
         fig.savefig(f, format='svg')
         

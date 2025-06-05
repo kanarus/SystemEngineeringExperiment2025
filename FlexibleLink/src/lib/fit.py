@@ -41,7 +41,7 @@ def NiquistCurve(
     x_from_ω = lambda ω: numpy.real(G(1j * ω))
     y_from_ω = lambda ω: numpy.imag(G(1j * ω))
 
-    return #
+    return #...
 
 
 def assert_stable(
@@ -49,24 +49,27 @@ def assert_stable(
     b2: float, b0: float,
 ) -> None:
     """
-    Check the characteristic polynomial is stable.
-    The characteristic polynomial is given by
-
-    s^4 + a3 * s^3 + a2 * s^2 + a1 * s = 0
-
-    The system is stable if all the roots of the characteristic polynomial have negative real parts.
-    The Routh-Hurwitz stability criterion is used to check the stability.
+    各伝達関数は ** / (1 + P(s)C(s)) で、どれも計算すると分母多項式が
+    Dp(s)Dc(s) + Np(s)Nc(s) となる
+    ( P(s) =: Np(s) / Dp(s), C(s) =: Nc(s) / Dc(s) )
     """
 
     s = sympy.symbols('s')
-    roots: list = sympy.solve(s**4 + a3 * s**3 + a2 * s**2 + a1 * s)
+
+    Np = b2 * s**2 + b0
+    Dp = s**4 + a3 * s**3 + a2 * s**2 + a1 * s
+    Nc = 1.65
+    Dc = 1
+
+    roots: list = sympy.solve(Dp * Dc + Np * Nc)
     print("roots:", roots)
 
-    if not roots.count(0.0) == 1: # s * (...) = 0
-        raise ValueError("One root must be 0.")
-    roots.remove(0.0)
+    if roots.count(0.0) > 0:
+        # remove just first 0.0
+        roots.remove(0.0)
     if not all([sympy.re(root) < 0 for root in roots]):
-        raise ValueError("The system is not stable.")
+        raise ValueError("The system is not stable: roots are not all in the left half plane.")
+    if not all([roots.count(root) == 1 for root in roots]):
+        raise ValueError("The system is not stable: has multiple roots.")
     print("The system is stable.")
-    
     
