@@ -7,8 +7,8 @@ import sys
 directory = pathlib.Path(__file__).resolve().parent.parent
 sys.path.append(str(directory))
 
-from env import make_env
-from models import Qtable
+from rl.env import make_env
+from rl.models import Qtable
 from utils.logger import Logger
 from collections import OrderedDict
 
