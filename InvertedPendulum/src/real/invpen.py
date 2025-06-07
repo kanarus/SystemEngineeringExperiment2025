@@ -23,7 +23,7 @@ class Invpen():
     Kg = 70.0
     kt = 7.68e-3
     km = 7.68e-3
-    Am = Kg*kt/Rm
+    Am = Kg*etag*kt*etam/Rm
     Bm = Kg*km
 
     #acceleration of gravity

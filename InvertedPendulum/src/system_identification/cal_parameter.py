@@ -24,7 +24,7 @@ class Param:
     Kg:float = 70.0
     kt:float = 7.68e-3
     km:float = 7.68e-3
-    Am:float = Kg*kt/Rm
+    Am:float = Kg*etag*kt*etam/Rm
     Bm:float = Kg*km
 P = Param()
 
